@@ -24,7 +24,7 @@ window.onload = function init() {
   }
 
   //Triangle vertices
-  var vertices = [vec2(-1, -1), vec2(0, 1), vec2(1, -1)];
+  var vertices = [vec2(-0.25, -0.25), vec2(0, 0.25), vec2(0.25, -0.25)];
 
   //Configure WebGL
   gl.viewport(0, 0, canvas.width, canvas.height);
