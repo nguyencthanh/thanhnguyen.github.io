@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hello World</title>
+  </head>
+  <body>
+    <script src="pixi/pixi.min.js"></script>
+    <script type="text/javascript">
+      let type = "WebGL";
+      if (!PIXI.utils.isWebGLSupported()) {
+        type = "canvas";
+      }
+
+      PIXI.utils.sayHello(type);
+
+      //Create a PIXI Application
+      const app = new PIXI.Application({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        antialias: true,
+      });
+      document.body.appendChild(app.view);
+
+      app.renderer.backgroundColor = 0x061639;
+      app.renderer.autoDensity = true;
+
+      //From KittyKataAttack GitHub's PixiJS
+      function keyboard(value) {
+        const key = {};
+        key.value = value;
+        key.isDown = false;
+        key.isUp = true;
+        key.press = undefined;
+        key.release = undefined;
+        //The `downHandler`
+        key.downHandler = (event) => {
+          if (event.key === key.value) {
+            if (key.isUp && key.press) {
+              key.press();
+            }
+            key.isDown = true;
+            key.isUp = false;
+            event.preventDefault();
+          }
+        };
+
+        //The `upHandler`
+        key.upHandler = (event) => {
+          if (event.key === key.value) {
+            if (key.isDown && key.release) {
+              key.release();
+            }
+            key.isDown = false;
+            key.isUp = true;
+            event.preventDefault();
+          }
+        };
+
+        //Attach event listeners
+        const downListener = key.downHandler.bind(key);
+        const upListener = key.upHandler.bind(key);
+
+        window.addEventListener("keydown", downListener, false);
+        window.addEventListener("keyup", upListener, false);
+
+        // Detach event listeners
+        key.unsubscribe = () => {
+          window.removeEventListener("keydown", downListener);
+          window.removeEventListener("keyup", upListener);
+        };
+
+        return key;
+      }
+
+      //Adding Sprite and Keyboard Movement
+      //Define any variables that are used in more than one function
+      let cat, state;
+
+      PIXI.Loader.shared.add("images/cat.png").load(setup);
+      function setup() {
+        //Create the `cat` sprite
+        cat = new PIXI.Sprite(
+          PIXI.Loader.shared.resources["images/cat.png"].texture
+        );
+        cat.vx = 0;
+        cat.vy = 0;
+        app.stage.addChild(cat);
+
+        //Capture the keyboard arrow keys
+        const left = keyboard("ArrowLeft"),
+          up = keyboard("ArrowUp"),
+          right = keyboard("ArrowRight"),
+          down = keyboard("ArrowDown");
+
+        //Left arrow key `press` method
+        left.press = () => {
+          //Change the cat's velocity when the key is pressed
+          cat.vx = -5;
+          cat.vy = 0;
+        };
+
+        //Left arrow key `release` method
+        left.release = () => {
+          //If the left arrow has been released, and the right arrow isn't down,
+          //and the cat isn't moving vertically:
+          //Stop the cat
+          if (!right.isDown && cat.vy === 0) {
+            cat.vx = 0;
+          }
+        };
+
+        //Up
+        up.press = () => {
+          cat.vy = -5;
+          cat.vx = 0;
+        };
+        up.release = () => {
+          if (!down.isDown && cat.vx === 0) {
+            cat.vy = 0;
+          }
+        };
+
+        //Right
+        right.press = () => {
+          cat.vx = 5;
+          cat.vy = 0;
+        };
+        right.release = () => {
+          if (!left.isDown && cat.vy === 0) {
+            cat.vx = 0;
+          }
+        };
+
+        //Down
+        down.press = () => {
+          cat.vy = 5;
+          cat.vx = 0;
+        };
+        down.release = () => {
+          if (!up.isDown && cat.vx === 0) {
+            cat.vy = 0;
+          }
+        };
+
+        //Set the game state
+        state = play;
+
+        //Start the game loop
+        app.ticker.add((delta) => gameLoop(delta));
+      }
+
+      function gameLoop(delta) {
+        //Update the current game state:
+        state(delta);
+      }
+
+      function play(delta) {
+        //Use the cat's velocity to make it move
+        cat.x += cat.vx;
+        cat.y += cat.vy;
+
+        if (cat.x < 0) {
+          cat.x = 0;
+          cat.vx = 0;
+        }
+        if (cat.x + cat.width > app.view.width) {
+          cat.x = app.view.width - cat.width;
+          cat.vx = 0;
+        }
+
+        if (cat.y < 0) {
+          cat.y = 0;
+          cat.vy = 0;
+        }
+
+        if (cat.y + cat.height > app.view.height) {
+          cat.y = app.view.height - cat.height;
+          cat.vy = 0;
+        }
+      }
+    </script>
+  </body>
+</html>
