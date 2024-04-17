@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Term Project</title>
+</head>
+<body>
+    <script src="https://threejs.org/build/three.js"></script>
+
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@latest/build/three.module.js"
+          }
+        }
+      </script>
+
+    <div id="container">
+        <script type="module">
+            import * as THREE from "three";
+            import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Load the 3D model
+            const loader = new GLTFLoader();
+            loader.load('Term-Project-Final.glb', (gltf) => {
+              const model = gltf.scene;
+              scene.add(model);
+            });
+            
+            // Set the camera position
+            camera.position.z = 5;
+            
+            // Render the scene
+            const animate = () => {
+              requestAnimationFrame(animate);
+              renderer.render(scene, camera);
+            };
+            animate();
+          </script>
+    </div>
+</body>
+</html>
